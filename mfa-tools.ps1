@@ -1,8 +1,16 @@
+Add-Type -Name Window -Namespace Console -MemberDefinition '
+[DllImport("Kernel32.dll")]
+public static extern IntPtr GetConsoleWindow();
+
+[DllImport("user32.dll")]
+public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);'
+
+[Console.Window]::ShowWindow([Console.Window]::GetConsoleWindow(), 0)
 <# This form was created using POSHGUI.com  a free online gui designer for PowerShell
 .NAME
-    MFA Checker Tool
+    MFA AdminTool
 .SYNOPSIS
-    Tool to Check MFA Status and make changes
+    Tool to Check MFA Status and make changes 
 .DESCRIPTION
     This tool will help you do basic MFA checks in O365 if you are not a global admin but have Azure P1 license and are assigned a PIM role for MFA Authentication Administrator
 #>
@@ -10,17 +18,17 @@
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-$MFA_Checker                     = New-Object system.Windows.Forms.Form
-$MFA_Checker.ClientSize          = New-Object System.Drawing.Point(575,662)
-$MFA_Checker.text                = "MFA Checker Tool"
-$MFA_Checker.TopMost             = $false
-$MFA_Checker.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
+$MFA_Admin_Tool                  = New-Object system.Windows.Forms.Form
+$MFA_Admin_Tool.ClientSize       = New-Object System.Drawing.Point(575,662)
+$MFA_Admin_Tool.text             = "MFA Admin Tool"
+$MFA_Admin_Tool.TopMost          = $false
+$MFA_Admin_Tool.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
 
 $btnConnect                      = New-Object system.Windows.Forms.Button
 $btnConnect.text                 = "Connect MSOnline"
-$btnConnect.width                = 118
-$btnConnect.height               = 32
-$btnConnect.location             = New-Object System.Drawing.Point(5,50)
+$btnConnect.width                = 130
+$btnConnect.height               = 42
+$btnConnect.location             = New-Object System.Drawing.Point(5,40)
 $btnConnect.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnConnect.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
 $btnConnect.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
@@ -30,7 +38,7 @@ $txtOut.multiline                = $true
 $txtOut.width                    = 380
 $txtOut.height                   = 160
 $txtOut.Anchor                   = 'top,right'
-$txtOut.location                 = New-Object System.Drawing.Point(132,17)
+$txtOut.location                 = New-Object System.Drawing.Point(143,17)
 $txtOut.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 
 $lblConnect                      = New-Object system.Windows.Forms.Label
@@ -59,7 +67,7 @@ $txtUser.Anchor                  = 'left'
 $txtUser.location                = New-Object System.Drawing.Point(7,227)
 $txtUser.Font                    = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 
-$ToolTip1                        = New-Object system.Windows.Forms.ToolTip
+#$ToolTip1                        = New-Object system.Windows.Forms.ToolTip
 
 $txtStatus                       = New-Object system.Windows.Forms.TextBox
 $txtStatus.multiline             = $true
@@ -71,53 +79,53 @@ $txtStatus.Font                  = New-Object System.Drawing.Font('Microsoft San
 
 $btnStatus                       = New-Object system.Windows.Forms.Button
 $btnStatus.text                  = "Check Status"
-$btnStatus.width                 = 116
+$btnStatus.width                 = 130
 $btnStatus.height                = 30
 $btnStatus.Anchor                = 'right'
-$btnStatus.location              = New-Object System.Drawing.Point(397,233)
+$btnStatus.location              = New-Object System.Drawing.Point(396,234)
 $btnStatus.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnStatus.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $btnEnable                       = New-Object system.Windows.Forms.Button
 $btnEnable.text                  = "Enable MFA"
-$btnEnable.width                 = 116
+$btnEnable.width                 = 130
 $btnEnable.height                = 30
-$btnEnable.location              = New-Object System.Drawing.Point(396,270)
+$btnEnable.location              = New-Object System.Drawing.Point(395,270)
 $btnEnable.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnEnable.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $btnDisable                      = New-Object system.Windows.Forms.Button
 $btnDisable.text                 = "Disable MFA"
-$btnDisable.width                = 115
+$btnDisable.width                = 130
 $btnDisable.height               = 30
 $btnDisable.Anchor               = 'right'
-$btnDisable.location             = New-Object System.Drawing.Point(395,314)
+$btnDisable.location             = New-Object System.Drawing.Point(396,353)
 $btnDisable.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnDisable.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $btnReset                        = New-Object system.Windows.Forms.Button
 $btnReset.text                   = "Reset MFA"
-$btnReset.width                  = 117
+$btnReset.width                  = 130
 $btnReset.height                 = 30
 $btnReset.Anchor                 = 'right'
-$btnReset.location               = New-Object System.Drawing.Point(395,356)
+$btnReset.location               = New-Object System.Drawing.Point(395,392)
 $btnReset.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnReset.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $btnRevoke                       = New-Object system.Windows.Forms.Button
 $btnRevoke.text                  = "Revoke MFA"
-$btnRevoke.width                 = 120
+$btnRevoke.width                 = 130
 $btnRevoke.height                = 30
 $btnRevoke.Anchor                = 'right'
-$btnRevoke.location              = New-Object System.Drawing.Point(396,396)
+$btnRevoke.location              = New-Object System.Drawing.Point(395,433)
 $btnRevoke.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnRevoke.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $btnClear                        = New-Object system.Windows.Forms.Button
 $btnClear.text                   = "Clear Fields"
-$btnClear.width                  = 81
+$btnClear.width                  = 140
 $btnClear.height                 = 31
-$btnClear.location               = New-Object System.Drawing.Point(435,453)
+$btnClear.location               = New-Object System.Drawing.Point(390,537)
 $btnClear.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnClear.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
@@ -129,8 +137,17 @@ $btnClose.location               = New-Object System.Drawing.Point(15,535)
 $btnClose.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $btnClose.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
-$ToolTip1.SetToolTip($txtUser,'Enter Email Address')
-$MFA_Checker.controls.AddRange(@($btnConnect,$txtOut,$lblConnect,$lblEmail,$txtUser,$txtStatus,$btnStatus,$btnEnable,$btnDisable,$btnReset,$btnRevoke,$btnClear,$btnClose))
+$btnEnforce                      = New-Object system.Windows.Forms.Button
+$btnEnforce.text                 = "Enforce MFA"
+$btnEnforce.width                = 130
+$btnEnforce.height               = 30
+$btnEnforce.location             = New-Object System.Drawing.Point(395,311)
+$btnEnforce.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$btnEnforce.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
+#$None.SetToolTip($MFA_Admin_Tool,'Enter Email Address')
+#$None.SetToolTip($txtUser,'Enter Email Address')
+$MFA_Admin_Tool.controls.AddRange(@($btnConnect,$txtOut,$lblConnect,$lblEmail,$txtUser,$txtStatus,$btnStatus,$btnEnable,$btnDisable,$btnReset,$btnRevoke,$btnClear,$btnClose,$btnEnforce))
 
 $btnConnect.Add_Click({ Connect-Msol })
 $btnStatus.Add_Click({ Check_MFA })
@@ -138,31 +155,45 @@ $btnEnable.Add_Click({ Enable_MFA })
 $btnDisable.Add_Click({ Disable_MFA })
 $btnReset.Add_Click({ Reset_MFA })
 $btnRevoke.Add_Click({ Revoke_MFA })
-$btnClear.Add_Click({ ClearForm })
-$btnClose.Add_Click({ closeForm })
+$btnClear.Add_Click({ Clear_Form })
+$btnClose.Add_Click({ CloseForm })
+$btnEnforce.Add_Click({ Enforce_MFA })
 
 function closeForm
 {
-    $MFA_Checker.Close();
+    $MFA_Admin_Tool.Close();
 }
-function ClearForm { 
+function Clear_Form { 
     $txtStatus.Clear(); 
     $txtUser.Clear();
 }
 
 function Connect-Msol { 
-    $txtOut.text = $txtOut.Text = "Getting O365 Admin Credentials `r`n"
-    $txtOut.text = "Connecting to all Services" 
-    # Import Modules or Install if not found
-if(-not (Get-module MSOnline, AzureAD )){
-    Install-Module MSOnline, AzureAD -Scope CurrentUser -ErrorAction SilentlyContinue}
-    Connect-MsolService  
-    Connect-Azuread
+    
+    $msonline = Get-InstalledModule -Name MSOnline -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 
-    $txtOut.text = "Connected to: All Services
+    $txtOut.text = "Connecting to all Services `r`n" 
+
+    # Import Modules or Install if not found
+    if (-not $msonline) {
+        $txtOut.text += "Installing Required Module MSOnline `r`n"
+        Set-PSRepository PSGallery -InstallationPolicy Trusted
+        Install-Module MSOnline -Repository PSGallery -Confirm:$False -Force -Scope CurrentUser
+        $txtOut.text += "The following Module have been installed `r`n $($msonline)"
+    } else {
+        $txtOut.text += "Loaded Module `r`n"
+        Import-Module MSOnline
+    }
+}
+
+    
+    Connect-MsolService  
+    
+
+    $txtOut.text = "Connected to: Service & Required Module Installed"
     $lblConnect.BackColor = "#417505"
     $lblConnect.text = "Connected"
-}
+
 
 function Check_MFA {
 # This will first check the MFA status defined by method type SMS, Voice, PhoneApp, the State returns Enforced, or Enabled, if it's blank its disabled    
@@ -217,9 +248,22 @@ $txtStatus.Clear();
 
 function Revoke_MFA {
 $txtStatus.Clear(); 
-        #Connect-Azuread #-- Not needed since you are connecting via MSOnline
+        
         Revoke-AzureADUserAllRefreshToken -ObjectId $txtUser.text # Revoke all tokens and session for user
         
         $txtStatus.Text = "Revoking all tokens for user $($txtUser.text)"
 }
-[void]$MFA_Checker.ShowDialog()
+function Enforce_MFA { 
+    $txtStatus.Clear();
+    $st = New-Object -TypeName Microsoft.Online.Administration.StrongAuthenticationRequirement
+    $st.RelyingParty = "*"
+    $st.State = "Enforced"
+    $sta = @($st)
+                
+                Set-MsolUser -UserPrincipalName $txtUser.text -StrongAuthenticationRequirements $sta # Sets the State flag to enabled
+                $Check = Get-MsolUser -UserPrincipalName $txtUser.Text
+                
+                $txtStatus.Text = $txtStatus.Text + "Enforcing MFA For: $($txtUser.Text)`r`n" 
+                $txtStatus.Text = $txtStatus.Text + "Enforced Flag: $($Check.StrongAuthenticationRequirements.State)`r`n" # Return the flag Enabled
+}
+[void]$MFA_Admin_Tool.ShowDialog()
