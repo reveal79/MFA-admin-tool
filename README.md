@@ -23,3 +23,5 @@ Reset MFA - Resets MFA methods and requires to re-register for MFA
 
 Revoke MFA - Revokes all tokens and sessions and requires MFA to be configured again
 
+Image of script for reference
+![image](https://github.com/reveal79/MFA-admin-tool/assets/20243681/1ad46e83-f804-465e-8928-b6f0b737607d)
